@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
   build:
-    if: github.repository == 'iOSRealRun/iOSRealRun-cli'
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
@@ -21,10 +20,10 @@ jobs:
 
     steps:
       - name: Check-out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: ${{ matrix.arch }}
@@ -45,32 +44,30 @@ jobs:
 
       - name: Copy Files (Windows)
         if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
-          mkdir output
-          mkdir output/libimobiledevice
-          cp build/*.exe output/
+          mkdir -p output/libimobiledevice
+          cp build/*.exe output/main.exe
           cp config.yaml output/
           cp *route.txt output/
           cp -r DeveloperDiskImage output/
-          cp -r libimobiledevice/win output/libimobiledevice
-        
+          cp -r libimobiledevice/win output/libimobiledevice/
+
       - name: Copy Files (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          mkdir output
-          mkdir output/libimobiledevice
-          cp build/*.bin output/
+          mkdir -p output/libimobiledevice
+          cp build/*.bin output/main.bin
           cp config.yaml output/
           cp *route.txt output/
           cp -r DeveloperDiskImage output/
           cp -r libimobiledevice/linux output/libimobiledevice
-      
+
       - name: Copy Files (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          mkdir output
-          mkdir output/libimobiledevice
-          cp build/*.bin output/
+          mkdir -p output/libimobiledevice
+          cp build/*.bin output/main.bin
           cp config.yaml output/
           cp *route.txt output/
           cp main.command output/
@@ -78,8 +75,7 @@ jobs:
           cp -r libimobiledevice/darwin output/libimobiledevice
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iOSRealRun-cli-${{ runner.os }}-${{ matrix.arch }}
-          path: |
-            output/
+          path: output/
