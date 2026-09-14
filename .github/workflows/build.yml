@@ -8,6 +8,8 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Force a fresh build when the workflow is re-enabled.
+
 jobs:
   build:
     strategy:
